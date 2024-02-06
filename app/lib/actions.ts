@@ -4,41 +4,35 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 
-export const generateRandomStringFromServer: () => Promise<string> = async () => {
-  const prompt = PromptTemplate.fromTemplate(`Hello there! can you tell me a random unusual joke about {thing}?`);
+export const generateJokeFromTheServer: ({topic} : {topic: string}) => Promise<string> = async ({topic}) => {
 
-  const llm = new ChatOpenAI({
-      modelName: "gpt-3.5-turbo",
-      temperature: 0.5,
-      // fail at the first rate limit error
-      maxRetries: 5,
-      // no more than two queries at the same time
-  });
-
-  const chain = prompt
-      .pipe(llm.bind({
-          functions: [{
-              name: "extractor",
-              description: "The given joke text",
-              parameters: {
-                  type: "object",
-                  properties: {
-                      html: {
-                          type: "string",
-                          description: "the text of the joke in simple html format",
-                      },
-                      text: {
-                          type: "string",
-                          description: "the text of the joke without formatting in simple text",
-                      },
-                  },
-                  required: ["html", "text"],
-              },
-          }],
-          function_call: { name: "extractor" },
-      }))
-      .pipe(new JsonOutputFunctionsParser());
+    // simple langchain chain where we pipe a prompt asking for joke to a model
+    // of OpenAI. Later we force the answer to match the specified swagger.
+    const chain = PromptTemplate.fromTemplate(`Hello there! can you tell me a random unusual joke about {topic}?`)
+    .pipe(new ChatOpenAI({
+        modelName: "gpt-3.5-turbo",
+        temperature: 0.5,
+        // fail at the first rate limit error
+        maxRetries: 5,
+    }).bind({
+        functions: [{
+            name: "extractor",
+            description: "The given joke text",
+            parameters: {
+                type: "object",
+                properties: {
+                    text: {
+                        type: "string",
+                        description: "the text of the joke without formatting in simple text",
+                    },
+                },
+                required: ["text"],
+            },
+        }],
+        function_call: { name: "extractor" },
+    }))
+    .pipe(new JsonOutputFunctionsParser());
 
 
-  return chain.invoke({ thing: "dogs" }).then(({ text }) => text);
+  return chain.invoke({ topic }).then(({ text }) => text);
 };
