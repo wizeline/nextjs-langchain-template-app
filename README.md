@@ -22,7 +22,7 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## About this template
 
-Our intention with this template is to provide a starting point for a Next.js project that also makes use of [Langchainjs](https://js.langchain.com/docs/get_started/introduction) to communicate with the OpenAI API.
+Our intention with this template is to provide a starting point for a Next.js project that also makes use of [Langchainjs](https://js.langchain.com/docs/get_started/introduction) to communicate with the OpenAI API. We found confusing the documentation about langchain in javascript and it is a good summary of a simple way of putting in practice any crazy idea you have.
 
 ## Learn More
 
