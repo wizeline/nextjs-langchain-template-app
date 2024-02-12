@@ -1,38 +1,39 @@
 "use server";
 
 import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
-import { JsonOutputFunctionsParser } from "langchain/output_parsers";
+import { GoogleVertexAI } from "@langchain/community/llms/googlevertexai";
 
-export const generateJokeFromTheServer: ({topic} : {topic: string}) => Promise<string> = async ({topic}) => {
+export const generateJokeFromTheServer: ({
+  topic,
+}: {
+  topic: string;
+}) => Promise<string> = async ({ topic }) => {
+  // simple langchain chain where we pipe a prompt asking for joke to a model
 
-    // simple langchain chain where we pipe a prompt asking for joke to a model
-    // of OpenAI. Later we force the answer to match the specified swagger.
-    const chain = PromptTemplate.fromTemplate(`Hello there! can you tell me a random unusual joke about {topic}?`)
-    .pipe(new ChatOpenAI({
-        modelName: "gpt-3.5-turbo",
-        temperature: 0.5,
-        // fail at the first rate limit error
-        maxRetries: 5,
-    }).bind({
-        functions: [{
-            name: "extractor",
-            description: "The given joke text",
-            parameters: {
-                type: "object",
-                properties: {
-                    text: {
-                        type: "string",
-                        description: "the text of the joke without formatting in simple text",
-                    },
-                },
-                required: ["text"],
-            },
-        }],
-        function_call: { name: "extractor" },
-    }))
-    .pipe(new JsonOutputFunctionsParser());
+  const credentials = JSON.parse(
+    process.env.GOOGLE_SERVICE_ACCOUNT_KEY ?? ""
+  ) as {
+    project_id: string;
+    private_key: string;
+    client_email: string;
+  };
 
+  const chain = PromptTemplate.fromTemplate(
+    `Hello there! can you tell me a random unusual joke about {topic}?`
+  ).pipe(
+    new GoogleVertexAI({
+      authOptions: {
+        projectId: credentials.project_id,
+        credentials: {
+          private_key: credentials.private_key,
+          client_email: credentials.client_email,
+        },
+      },
+      temperature: 0.5,
+      // fail at the first rate limit error
+      maxRetries: 5,
+    })
+  );
 
-  return chain.invoke({ topic }).then(({ text }) => text);
+  return chain.invoke({ topic });
 };
