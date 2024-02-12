@@ -22,11 +22,14 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## About this template
 
-Our intention with this template is to provide a starting point for a Next.js project that also makes use of [Langchainjs](https://js.langchain.com/docs/get_started/introduction) to communicate with the OpenAI API. We found confusing the documentation about langchain in javascript and it is a good summary of a simple way of putting in practice any crazy idea you have.
+Our intention with this template is to provide a starting point for a Next.js project that also makes use of [Langchainjs](https://js.langchain.com/docs/get_started/introduction) to communicate with  Googles's Vertex IA. We found confusing the documentation about langchain in javascript and it is a good summary of a simple way of putting in practice any crazy idea you have.
+
+Follow this stesp by step video to create a proper Google Cloud Service Account and an association to the you a cloud projects.
+
+https://youtu.be/DQQCkZ2B-MA?feature=shared
+
 
 ## Learn More
-
-We are using on /app > /lib > actions.ts the [langchain OpenAI functions](https://js.langchain.com/docs/modules/chains/additional/openai_functions/) to generate a joke from the OpenAI API based on the provided topic. This is one of the key files of the project because it allows us to communicate with the API using a chain to generate an answer with a structured output, in this case a string with the joke.
 
 The other bit of magic is happening in /app > /ui > prompt-playground.tsx where Nextjs' [server actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations) lets us directly make a request using the `generateJokeFromTheServer` function. We just have to patiently await the result. We can do that by specifying at the top of each file if we want it to run client or server side. Of course, we want the `generateJokeFromTheServer` function to run server side but our button is client side.
 
